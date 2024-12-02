@@ -1,0 +1,115 @@
+---
+title: "Ejercicios_correlación"
+author: "Gerald Moreno"
+date: "2024-12-01"
+output: html_document
+---
+
+Download datasets from: 
+Git-hub
+
+# Primera pregunta
+Utilice el conjunto de datos ans.csv. Considere que todas las variables se ajustan a una distribución normal
+(utilice el coeficiente de correlación de Pearson).
+• Utilice el comando cor.test y extraiga: (1) el coeficiente de correlación, (2) el intervalo de confianza y
+(3) el valor de P considerando las variables:
+x1 y y1
+x2 y y2
+x3 y y3
+x4 y y4
+• ¿Qué puede decir en relación a los resultados del punto anterior? (ayuda, compare los cuatro coeficientes
+de correlación, intervalos de confianza y valores de P).
+Si piensa que es necesario hacer algo que no se menciona en el enunciado, hágalo (cual Jedi, utilice la fuerza).
+```{r}
+ans <- read.csv("ans.csv")
+class(ans)
+str(ans)
+names(ans)
+
+
+r1 <- cor.test(ans$y1, ans$x1, method="pearson")
+p1  <- r1$p.value
+coef1 <- r1$estimate 
+ic1 <- r1$conf.int
+
+print(paste("p-valor1=",p1,  "coef-Pearson1=", coef1,"IC1=",ic1[1],"-",ic1[2]))
+
+r2 <- cor.test(ans$y2, ans$x2, method="pearson")
+
+p2  <- r2$p.value
+coef2 <- r2$estimate 
+ic2 <- r2$conf.int
+
+print(paste("p-valor2=",p2,  "coef-Pearson2=", coef2,"IC2=",ic2[1],"-",ic2[2]))
+
+r3 <- cor.test(ans$y3, ans$x3, method="pearson")
+
+p3  <- r3$p.value
+coef3 <- r3$estimate 
+ic3 <- r3$conf.int
+
+print(paste("p-valor3=",p3,  "coef-Pearson3=", coef3,"IC3=",ic3[1],"-",ic3[2]))
+
+r4 <- cor.test(ans$y4, ans$x4, method="pearson")
+
+p4  <- r4$p.value
+coef4 <- r4$estimate 
+ic4 <- r4$conf.int
+
+print(paste("p-valor4=",p4,  "coef-Pearson4=", coef4,"IC4=",ic4[1],"-",ic4[2]))
+
+```
+Respuesta: En general los p valores son muy similaress, si nos remitimos al coeficiente de Pearson, vemos que también son similares al igual que los IC son similares (van de 0.45 a 0.95), y ese intervalo es muy amplio, lo cual no genera verdadera confianza ya que el intervalo compromete el 0.5 lo cual significa que cada par podría tener una asociación moderada y no fuerte como indica el coef. de Pearson. Grafiquemos
+
+```{r}
+#Modelos de regresion
+modelo1 <- lm(y1 ~ x1, data = ans)
+modelo2 <- lm(y2 ~ x2, data = ans)
+modelo3 <- lm(y3 ~ x3, data = ans)
+modelo4 <- lm(y4 ~ x4, data = ans)
+
+plot(y1~x1, data=ans)
+abline(modelo1, col = "red", lwd = 2)
+
+plot(y2~x2, data=ans)
+abline(modelo2, col = "red", lwd = 2)
+
+plot(y3~x3, data=ans)
+abline(modelo3, col = "red", lwd = 2)
+
+plot(y4~x4, data=ans)
+abline(modelo1, col = "red", lwd = 2)
+
+```
+Oh sorpresa, solamente la primera comparacion cumple los 
+requisitos de la correlación y regresión, que es la linealidad de la relación, a y2~x2 hay que hacerle una transformación, la tercera y3~x3 tiene un outlier, y la 
+cuarta y4~x4 no tiene ningún tipo de correlación, es y constante, y tiene un outlier.
+
+
+# Segunda pregunta
+```{r}
+setwd("/home/gerald/Documentos/maestria/2do_ciclo/graficos_R/ulrima_tarea")
+getwd()
+regis <- read.csv("registro.csv")
+
+
+
+model <- lm(puntaje2~intensidad2,data=regis)
+
+summary(model)
+plot(regis)
+abline(model, col = "red", lwd = 2)
+
+model2 <- lm(puntaje2~intensidad2+ I(intensidad2^3), data =regis)
+k <- coef(model2)
+k
+
+curve(k[1] + k[2]*x + k[3]*x^3, col = "red", lwd = 2, add = TRUE)
+
+
+```
+La expresión ```k[1] + k[2]*x + k[3]*x^3``` corresponde a 
+la ecuación cúbica ```y = b0 + b1 x + b2 x^3``` la cual 
+es más versatil que una cúbica, por ello se puede ajustar a relaciones complejas de tus datos
+
+Lo que se observa es qye ante una intensidad moderada (88-99) el puntaje en el examen es máximo, luego el puntaje baja cuando la intensidad es mayor a >92.
